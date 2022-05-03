@@ -1,5 +1,5 @@
-import { Router } from "https://deno.land/x/oak/mod.ts";
-import { LoginHandler, RegisterHandler } from './controller/usercheck.ts'
+import { Router } from "https://deno.land/x/oak@v10.5.1/mod.ts";
+import { LoginHandler, RegisterHandler } from './controller/UserCheck.ts'
 
 export const router = new Router();
 router
