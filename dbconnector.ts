@@ -16,10 +16,10 @@ interface UserType {
 
 export class SqlLiter {
   name?: string;
-  db?: any;
-  connector?: any;
+  db: Database;
+  connector: SQLite3Connector;
 
-  constructor(name = "./database/test.sqlite") {
+  constructor(name = "./database/test_0503.sqlite") {
     this.connector = new SQLite3Connector({
       filepath: name,
     });
@@ -28,7 +28,7 @@ export class SqlLiter {
 
   initDB() {
     Relationships.belongsTo(RecordTable, UserTable);
-    this.db.link([UserTable]);
+    this.db.link([UserTable, RecordTable]);
     this.db.sync();
   }
 }
@@ -61,6 +61,11 @@ export class RecordTable extends Model {
   static table = "record";
 
   static fields = {
+    id: {
+      type: DataTypes.INTEGER,
+      primaryKey: true,
+      autoIncrement: true,
+    },
     record: DataTypes.JSON,
   };
 
