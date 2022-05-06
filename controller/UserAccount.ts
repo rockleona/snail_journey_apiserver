@@ -1,5 +1,6 @@
 import { isMissing } from "./valuecheck.ts";
 import { UserTable } from "./../dbconnector.ts";
+import { tokenGen } from "./token.ts";
 
 const dateCheck = (
   first: boolean,
@@ -41,7 +42,18 @@ const GetUserData = async (
   if (existData.length == 0) {
     return false;
   } else {
-    return existData[0].id;
+    const jwt = tokenGen(
+      {
+        id: existData[0].id,
+        username: existData[0].username,
+      },
+    );
+
+    return {
+      id: existData[0].id,
+      nickname: existData[0].nickname,
+      token: jwt,
+    };
   }
 };
 
@@ -84,10 +96,19 @@ export const LoginHandler = async ({
     return;
   } else {
     if (await LoginCheck(value)) {
-      const user_id = await GetUserData({
+      const user_dict = await GetUserData({
         username: value.username,
       });
-      response.body = { status: 1, msg: "Succeed", id: user_id };
+      if (user_dict != false) {
+        response.body = {
+          status: 1,
+          id: user_dict.id,
+          nickname: user_dict.nickname,
+          token: user_dict.token,
+        };
+      } else {
+        response.body = { status: 0, msg: "Failed" };
+      }
     } else {
       response.body = { status: 0, msg: "Failed" };
     }
@@ -144,10 +165,19 @@ export const RegisterHandler = async ({
     return;
   } else {
     if (await RegisterCheck(value)) {
-      const user_id = await GetUserData({
+      const user_dict = await GetUserData({
         username: value.username,
       });
-      response.body = { status: 1, msg: "Succeed Register!", id: user_id };
+      if (user_dict != false) {
+        response.body = {
+          status: 1,
+          id: user_dict.id,
+          nickname: user_dict.nickname,
+          token: user_dict.token,
+        };
+      } else {
+        response.body = { status: 0, msg: "Failed" };
+      }
     } else {
       response.body = { status: 0, msg: "Failed Register!" };
     }

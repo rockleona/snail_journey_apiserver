@@ -1,18 +1,25 @@
-const time = new Date(Date.now());
-const datestring = time.toDateString();
-// const datestring = time.toDateString();
-const parsed = Date.parse(datestring);
-const aDay = 1000 * 60 *60 * 24;
+import * as jose from "https://deno.land/x/jose@v4.8.1/index.ts";
+// const privateKey = ''
 
-console.log(typeof datestring)
-console.log(datestring)
-console.log(typeof parsed)
-console.log(parsed)
+export const tokenGen = () => {
+  const unsecuredJwt = new jose.UnsecuredJWT({ "urn:example:claim": true })
+    .setIssuedAt()
+    .setIssuer("snail-journey")
+    .setAudience("snail-journey-players")
+    .setExpirationTime("2h")
+    .encode();
+  console.log(unsecuredJwt);
+  return unsecuredJwt;
+};
 
-const nextDayNumber = parsed + aDay;
-const nextDay = new Date(nextDayNumber)
+export const tokenDec = (jwtPayload : string) =>{
+    const payload = jose.UnsecuredJWT.decode(jwtPayload, {
+        issuer: "snail-journey",
+        audience: "snail-journey-players"
+    });
+    console.log(payload);
+    console.log(payload.payload['urn:example:claim']);
+}
 
-const nextString = nextDay.toDateString();
-
-console.log(nextString)
-// console.log(nextString)
+const jwt = tokenGen();
+tokenDec(jwt);

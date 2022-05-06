@@ -6,14 +6,6 @@ import {
   SQLite3Connector,
 } from "https://deno.land/x/denodb@v1.0.40/mod.ts";
 
-interface UserType {
-  id?: number;
-  username: string;
-  password: string;
-  nickname?: string;
-  email?: string;
-}
-
 export class SqlLiter {
   name?: string;
   db: Database;
