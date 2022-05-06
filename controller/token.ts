@@ -13,15 +13,18 @@ export const tokenGen = (payload:any) => {
 
 export const tokenDec = (jwtPayload : string) =>{
 
-    const time = Date.now();
+    const time : number = Date.now();
     const payload = jose.UnsecuredJWT.decode(jwtPayload, {
         issuer: "snail-journey",
         audience: "snail-journey-players"
     });
     
     const expired = payload?.payload['exp'];
-    if (expired != undefined && time > expired) {
+    if (expired != undefined) {
+      const exp_time : Date = new Date( new Date(0).setUTCSeconds(expired));
+      if (time > exp_time.getTime()){
         return false;
+      }
     }
 
     return payload;
