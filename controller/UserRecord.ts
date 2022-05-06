@@ -1,5 +1,17 @@
-import { isMissing } from "./valuecheck.ts";
+import { tokenDec } from "./token.ts";
+import * as jose from "https://deno.land/x/jose@v4.8.1/index.ts";
+import { RecordTable } from "./../dbconnector.ts";
 // import { UserTable, RecordTable } from "./../dbconnector.ts";
+
+const UserFind = (token: string) => {
+  const jwt = token.replace("Bearer ", "");
+  const payload: jose.UnsecuredResult | boolean = tokenDec(jwt);
+  if (!payload) {
+    return false;
+  } else {
+    return payload;
+  }
+};
 
 export const GetRecordHandler = async ({
   request,
@@ -14,17 +26,35 @@ export const GetRecordHandler = async ({
   }
   const body = request.body();
   const value = await body.value;
-  if (isMissing(value.username) || isMissing(value.password)) {
-    response.body = { msg: "Request body error" };
-    response.status = 400;
-    return;
+  const headers: Headers = request.headers;
+  const token: string | null = headers.get("authorization");
+  if (token != null && token.includes("Bearer ")) {
+    const identity: jose.UnsecuredResult | boolean = UserFind(token);
+    if (!identity) {
+      response.body = { msg: "Unauthorized" };
+      response.status = 401;
+    } else {
+      const id: unknown | number = identity.payload["id"];
+      const existData: any = await RecordTable.where(
+        "usertable_id",
+        id as number,
+      ).get();
+      if (existData.length == 1) {
+        const data : any = await RecordTable.where("usertable_id", id as number).get();
+        response.body = { msg: "Record Found!", record: data[0].record };
+        response.status = 200;
+      } else {
+        response.body = { msg: "No Data" };
+        response.status = 200;
+      }
+    }
   } else {
-    response.status = 200;
-    return;
+    response.body = { msg: "Unauthorized" };
+    response.status = 401;
   }
 };
 
-export const WriteRecordHandler = ({
+export const WriteRecordHandler = async ({
   request,
   response,
 }: {
@@ -35,20 +65,38 @@ export const WriteRecordHandler = ({
     response.body = { msg: "No request body" };
     response.status = 400;
   }
-  // const body = request.body();
-  // const headers = request.headers();
-  // console.log(headers)
-  // const value = await body.value;
-  console.log(typeof request.headers.authorization)
-  console.log(request.headers.authorization)
-  response.body = { msg: "Query now" };
-  response.status = 200;
-//   if (isMissing(value.username) || isMissing(value.password)) {
-//     response.body = { msg: "Request body error" };
-//     response.status = 400;
-//     return;
-//   } else {
-//     response.status = 200;
-//     return;
-//   }
+  const body = request.body();
+  const value = await body.value;
+  const headers: Headers = request.headers;
+  const token: string | null = headers.get("authorization");
+  if (token != null && token.includes("Bearer ")) {
+    const identity: jose.UnsecuredResult | boolean = UserFind(token);
+    if (!identity) {
+      response.body = { msg: "Unauthorized" };
+      response.status = 401;
+    } else {
+      const id: unknown | number = identity.payload["id"];
+      const existData: any = await RecordTable.where(
+        "usertable_id",
+        id as number,
+      ).get();
+      if (existData.length == 1) {
+        await RecordTable.where("usertable_id", id as number).update({
+          record: value.record,
+        });
+      } else {
+        await RecordTable.create(
+          {
+            record: value.record,
+            usertable_id: id as number,
+          },
+        );
+      }
+      response.body = { msg: "Record Saved!" };
+      response.status = 200;
+    }
+  } else {
+    response.body = { msg: "Unauthorized" };
+    response.status = 401;
+  }
 };

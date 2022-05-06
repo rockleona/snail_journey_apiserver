@@ -2,7 +2,7 @@ import * as jose from "https://deno.land/x/jose@v4.8.1/index.ts";
 // const privateKey = ''
 
 export const tokenGen = () => {
-  const unsecuredJwt = new jose.UnsecuredJWT({ "urn:example:claim": true })
+  const unsecuredJwt = new jose.UnsecuredJWT({ "username": "tester" })
     .setIssuedAt()
     .setIssuer("snail-journey")
     .setAudience("snail-journey-players")
