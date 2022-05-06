@@ -72,6 +72,8 @@ export const WriteRecordHandler = async ({
   if (token != null && token.includes("Bearer ")) {
     const identity: jose.UnsecuredResult | boolean = UserFind(token);
     if (!identity) {
+      console.log("Identity!")
+      
       response.body = { msg: "Unauthorized" };
       response.status = 401;
     } else {
@@ -96,6 +98,7 @@ export const WriteRecordHandler = async ({
       response.status = 200;
     }
   } else {
+    console.log("Token Null!")
     response.body = { msg: "Unauthorized" };
     response.status = 401;
   }
