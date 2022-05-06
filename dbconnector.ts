@@ -58,7 +58,7 @@ export class RecordTable extends Model {
       primaryKey: true,
       autoIncrement: true,
     },
-    record: DataTypes.JSON,
+    record: DataTypes.STRING,
   };
 
   static usertable() {

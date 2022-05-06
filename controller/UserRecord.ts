@@ -41,7 +41,7 @@ export const GetRecordHandler = async ({
       ).get();
       if (existData.length == 1) {
         const data : any = await RecordTable.where("usertable_id", id as number).get();
-        response.body = { msg: "Record Found!", record: data[0].record };
+        response.body = { msg: "Record Found!", record: JSON.parse(data[0].record) };
         response.status = 200;
       } else {
         response.body = { msg: "No Data" };
@@ -84,12 +84,12 @@ export const WriteRecordHandler = async ({
       ).get();
       if (existData.length == 1) {
         await RecordTable.where("usertable_id", id as number).update({
-          record: value.record,
+          record: JSON.stringify(value.record),
         });
       } else {
         await RecordTable.create(
           {
-            record: value.record,
+            record: JSON.stringify(value.record),
             usertable_id: id as number,
           },
         );
